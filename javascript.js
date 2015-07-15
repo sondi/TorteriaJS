@@ -4,21 +4,23 @@ $( document ).ready(function() {
     var type = $("input[name='type']").val();
     var time = $("input[name='time']").val();
 
-
-    var new_torta = new Torta(type);
-    // console.log(new_torta);
+    count_down(time);
+    var new_torta = new Torta(type, time);
+    console.log(new_torta);
     var result = new_torta.bake_time();
-    // console.log(result);
-    var batch = new TortaBatch(8, type);
-    console.log(batch);
+ 
+    var batch = new TortaBatch(8, type, time);
+    // console.log(batch.status());
+
   });
 });
 
 // Class Torta
-var Torta = function(type){
+var Torta = function(type, time){
 	var self = this;
 	function initialize(){
 		self.type = type;
+		self.time = time;
 	};
 	initialize();
 };
@@ -31,32 +33,50 @@ Torta.prototype.bake_time = function(){
 ///////////////////////////////////////////////////////////////////////////////
 
 // Class TortaBatch
-var TortaBatch = function(batch_size, type){
+var TortaBatch = function(batch_size, type, time){
   var self = this;
   function initialize(){
     self.batch_size = batch_size;
     self.type = type;
-    var tortas = [];
+    self.time = time;
+    self.tortas = [];
     // console.log(tortas);
     for (var i = 0; i < batch_size; i++) {
-      tortas.push(new Torta(type));
+      self.tortas.push(new Torta(type, time));
     };
     // console.log(tortas);
-    var ready_time = tortas[0].bake_time();
-    var cook_time = 0;
+    self.ready_time = self.tortas[0].bake_time();
   };
   initialize();
 };
 
 // status method for TortaBatch
-TortaBatch.prototype.status = function(){
 
+
+TortaBatch.prototype.status = function(){
+	var self = this;
+	if (self.ready_time > self.time)
+		$('#message h2').text('Raw');
+	else if (self.ready_time == self.time)
+		$('#message h2').text('Ready');
+	else
+		$('#message h2').text('Burned');
 };
 
-
-
-
-
+var count_down = function(time){
+	setTimeout(function(){ 
+			$('#message h2').text(time);
+			if(time > 0){
+				count_down(time - 1);
+			}
+			else if(time == 0){
+				var type_2 = $("input[name='type']").val();
+    			var time_2 = $("input[name='time']").val();
+    			var batch = new TortaBatch(8, type_2, time_2);
+    			batch.status();		
+			}
+		}, 1000);	
+}
 
 
 
